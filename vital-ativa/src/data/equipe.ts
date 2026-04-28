@@ -1,0 +1,58 @@
+import type { Profissional } from "@/types";
+
+export const equipe: Profissional[] = [
+  {
+    id: "lucia-andrade",
+    nome: "Lúcia Andrade",
+    cargo: "Diretora e Personal Trainer",
+    foto: "https://images.unsplash.com/photo-1594381898411-846e7d193883?w=640&q=80",
+    formacao: "Educação Física — USP | Pós em Fisiologia do Exercício",
+    cref: "CREF 012345-G/SP",
+    especialidades: ["Musculação", "Hipertrofia", "Reabilitação"],
+  },
+  {
+    id: "rafael-lima",
+    nome: "Rafael Lima",
+    cargo: "Coach de Cross Training",
+    foto: "https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=640&q=80",
+    formacao: "Educação Física — UNIFESP | Certificação CrossFit L2",
+    cref: "CREF 023456-G/SP",
+    especialidades: ["Cross Training", "Condicionamento", "Performance"],
+  },
+  {
+    id: "ana-ferraz",
+    nome: "Ana Ferraz",
+    cargo: "Instrutora de Pilates",
+    foto: "https://images.unsplash.com/photo-1548690312-e3b507d8c110?w=640&q=80",
+    formacao: "Fisioterapia — PUC | Pós em Pilates Clínico",
+    cref: "CREF 067890-G/SP",
+    especialidades: ["Pilates", "Postura", "Reabilitação"],
+  },
+  {
+    id: "bruno-alves",
+    nome: "Bruno Alves",
+    cargo: "Personal Trainer e Funcional",
+    foto: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=640&q=80",
+    formacao: "Educação Física — Mackenzie | Pós em Treinamento Funcional",
+    cref: "CREF 034567-G/SP",
+    especialidades: ["Funcional", "Emagrecimento", "Personal"],
+  },
+  {
+    id: "marcela-dias",
+    nome: "Marcela Dias",
+    cargo: "Instrutora de Yoga",
+    foto: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?w=640&q=80",
+    formacao: "Educação Física — UNICAMP | Formação em Hatha e Vinyasa Yoga",
+    cref: "CREF 045678-G/SP",
+    especialidades: ["Yoga", "Meditação", "Mobilidade"],
+  },
+  {
+    id: "tania-morais",
+    nome: "Tânia Morais",
+    cargo: "Instrutora de Spinning",
+    foto: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=640&q=80",
+    formacao: "Educação Física — UNESP | Certificação Schwinn Cycling",
+    cref: "CREF 056789-G/SP",
+    especialidades: ["Spinning", "Cardio", "Emagrecimento"],
+  },
+];
