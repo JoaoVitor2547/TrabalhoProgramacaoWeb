@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CheckCircle2, Clock, Loader2, Users } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -97,6 +99,8 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
 // ─── Main Section ───────────────────────────────────────────────────────────
 
 export function AulaExperimentalSection() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [schedules, setSchedules] = React.useState<ScheduleAPI[]>([]);
   const [loadingSchedules, setLoadingSchedules] = React.useState(true);
   const [sucesso, setSucesso] = React.useState(false);
@@ -145,6 +149,11 @@ export function AulaExperimentalSection() {
   const modalityValue = watch("modality");
 
   const onSubmit = handleSubmit(async (data) => {
+    if (!session) {
+      router.push("/login?callbackUrl=/experimental")
+      return
+    }
+
     const res = await fetch(`${API_BASE}/booking/experimental`, {
       method: "POST",
       headers: { ...HEADERS, "Content-Type": "application/json" },

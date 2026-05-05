@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
+import { Providers } from "@/components/providers";
 import { ToastContextProvider } from "@/components/ui/use-toast";
 import "./globals.css";
 
@@ -108,11 +109,13 @@ export default function RootLayout({
         <a href="#conteudo" className="skip-link">
           Pular para o conteúdo
         </a>
-        <ToastContextProvider>
-          <Header />
-          <main id="conteudo">{children}</main>
-          <Footer />
-        </ToastContextProvider>
+        <Providers>
+          <ToastContextProvider>
+            <Header />
+            <main id="conteudo">{children}</main>
+            <Footer />
+          </ToastContextProvider>
+        </Providers>
       </body>
     </html>
   );

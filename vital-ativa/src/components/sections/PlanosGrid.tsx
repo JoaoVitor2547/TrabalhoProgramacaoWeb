@@ -1,8 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { Check, Sparkles, Smartphone, ClipboardList, Apple } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,9 +46,10 @@ interface PlanoCardProps {
   plano: PlanoAPI;
   index: number;
   popular: boolean;
+  onAssinar: () => void;
 }
 
-function PlanoCard({ plano, index, popular }: PlanoCardProps) {
+function PlanoCard({ plano, index, popular, onAssinar }: PlanoCardProps) {
   const modalityNames = plano.modalities.map((m) => m.modality.name);
   const objetivos = getPlanoObjetivos(plano);
   const preco = parseFloat(plano.price);
@@ -132,17 +134,19 @@ function PlanoCard({ plano, index, popular }: PlanoCardProps) {
       </div>
 
       <Button
-        asChild
         className="mt-6 w-full"
         variant={popular ? "primary" : "dark"}
+        onClick={onAssinar}
       >
-        <Link href="/matricula">Matricule-se agora</Link>
+        Matricule-se agora
       </Button>
     </motion.article>
   );
 }
 
 export function PlanosGrid() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [planos, setPlanos] = React.useState<PlanoAPI[]>(FALLBACK_PLANOS);
 
   React.useEffect(() => {
@@ -189,6 +193,14 @@ export function PlanosGrid() {
       return [...filters].every((f) => planoObjs.includes(f));
     });
   }, [filters, planos]);
+
+  const handleAssinar = () => {
+    if (!session) {
+      router.push("/login?callbackUrl=/matricula")
+    } else {
+      router.push("/matricula")
+    }
+  }
 
   return (
     <div className="flex flex-col gap-10">
@@ -255,6 +267,7 @@ export function PlanosGrid() {
               plano={plano}
               index={i}
               popular={isPopular(plano)}
+              onAssinar={handleAssinar}
             />
           ))}
         </div>
