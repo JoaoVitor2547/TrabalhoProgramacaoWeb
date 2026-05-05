@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ExperimentalForm } from "@/components/forms/ExperimentalForm";
+import { AulaExperimentalSection } from "@/components/sections/AulaExperimentalSection";
 import { Section, SectionHeading } from "@/components/ui/section";
 
 export const metadata: Metadata = {
@@ -13,14 +13,14 @@ export const metadata: Metadata = {
 export default function ExperimentalPage() {
   return (
     <Section>
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-5xl">
         <SectionHeading
           eyebrow="Aula experimental"
           title="Venha treinar com a gente — é grátis"
           description="Escolha uma modalidade, um dia disponível e apareça. Nossa equipe te recepciona e monta um treino de introdução."
         />
-        <div className="mt-10 rounded-2xl border border-ink-200 bg-white p-6 md:p-8">
-          <ExperimentalForm />
+        <div className="mt-10">
+          <AulaExperimentalSection />
         </div>
       </div>
     </Section>

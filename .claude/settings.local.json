@@ -6,7 +6,11 @@
       "Bash(node -e \"const z = require\\('zod'\\); console.log\\(z.version || 'no version'\\)\")",
       "Bash(npm list:*)",
       "Bash(node -e \"const l = require\\('c:/Users/joaov/OneDrive/Documentos/GitHub/TrabalhoProgramacaoWeb/vital-ativa/node_modules/lucide-react'\\); console.log\\('Instagram' in l, 'ExternalLink' in l\\)\")",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(curl -s -o - -w \"\\\\n---STATUS:%{http_code}---\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
+      "Bash(curl -s -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules\")"
     ]
   }
 }

@@ -72,6 +72,46 @@ export interface FotoGaleria {
   alt: string;
 }
 
+export type ObjetivoAPI = "HIPERTROFIA" | "EMAGRECIMENTO" | "RELAXAMENTO";
+
+export type DiaSemanaAPI = "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA";
+
+export interface ScheduleAPI {
+  id: number;
+  modalityId: number;
+  day_of_week: DiaSemanaAPI;
+  max_capacity: number;
+  start_time: string;
+  end_time: string;
+  needs_booking: boolean;
+  modality: ModalidadeAPI;
+}
+
+export interface ModalidadeAPI {
+  id: number;
+  name: string;
+  description: string;
+  objective: ObjetivoAPI;
+}
+
+export interface PlanoModalidadeAPI {
+  planId: number;
+  modalityId: number;
+  modality: ModalidadeAPI;
+}
+
+export interface PlanoAPI {
+  id: number;
+  name: string;
+  price: string;
+  duration_months: number;
+  description: string;
+  has_phys_eval: boolean;
+  has_nutritionist: boolean;
+  has_app_access: boolean;
+  modalities: PlanoModalidadeAPI[];
+}
+
 export interface EnderecoViaCep {
   cep: string;
   logradouro: string;
