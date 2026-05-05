@@ -56,8 +56,8 @@ export function MatriculaForm({ planoInicial }: MatriculaFormProps) {
     watch,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormValues>({
-    resolver: zodResolver(matriculaSchema),
+  } = useForm<FormValues, unknown, MatriculaInput>({
+    resolver: zodResolver(matriculaSchema) as import("react-hook-form").Resolver<FormValues, unknown, MatriculaInput>,
     mode: "onBlur",
     defaultValues: {
       nome: "",

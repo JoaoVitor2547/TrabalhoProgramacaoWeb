@@ -59,8 +59,8 @@ export function ExperimentalForm() {
     reset,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(experimentalSchema),
+  } = useForm<FormValues, unknown, ExperimentalInput>({
+    resolver: zodResolver(experimentalSchema) as import("react-hook-form").Resolver<FormValues, unknown, ExperimentalInput>,
     mode: "onBlur",
     defaultValues: {
       nome: "",

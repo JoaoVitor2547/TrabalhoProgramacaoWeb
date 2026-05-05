@@ -120,10 +120,10 @@ export const matriculaSchema = z.object({
     .pipe(z.string().length(2, "UF inválida")),
   planoSlug: z.string().min(1, "Selecione um plano"),
   periodoPreferencial: z.enum(["manha", "tarde", "noite"], {
-    errorMap: () => ({ message: "Selecione um período" }),
+    error: () => ({ message: "Selecione um período" }),
   }),
   aceiteTermos: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa aceitar os termos" }),
+    error: () => ({ message: "Você precisa aceitar os termos" }),
   }),
 });
 
@@ -162,7 +162,7 @@ export const experimentalSchema = z.object({
       "yoga",
       "personal",
     ],
-    { errorMap: () => ({ message: "Selecione uma modalidade" }) },
+    { error: () => ({ message: "Selecione uma modalidade" }) },
   ),
   dataPreferencial: dataFuturaNaoDomingo,
   origem: z
@@ -172,7 +172,7 @@ export const experimentalSchema = z.object({
     .optional()
     .or(z.literal("")),
   aceiteTermos: z.literal(true, {
-    errorMap: () => ({ message: "Você precisa aceitar os termos" }),
+    error: () => ({ message: "Você precisa aceitar os termos" }),
   }),
 });
 
