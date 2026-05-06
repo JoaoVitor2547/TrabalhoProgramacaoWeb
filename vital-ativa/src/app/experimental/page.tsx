@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AulaExperimentalSection } from "@/components/sections/AulaExperimentalSection";
 import { HorariosGrid } from "@/components/sections/HorariosGrid";
 import { Section, SectionHeading } from "@/components/ui/section";
+import type { ScheduleAPI } from "@/types";
 
 export const metadata: Metadata = {
   title: "Aula experimental grátis",
@@ -11,7 +12,26 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ExperimentalPage() {
+async function fetchSchedules(): Promise<ScheduleAPI[]> {
+  try {
+    const res = await fetch(
+      "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
+      {
+        headers: { "ngrok-skip-browser-warning": "true" },
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.schedules ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function ExperimentalPage() {
+  const schedules = await fetchSchedules();
+
   return (
     <>
       <Section>
@@ -22,7 +42,7 @@ export default function ExperimentalPage() {
             description="Escolha uma modalidade, um dia disponível e apareça. Nossa equipe te recepciona e monta um treino de introdução."
           />
           <div className="mt-10">
-            <HorariosGrid />
+            <HorariosGrid schedules={schedules} />
           </div>
         </div>
       </Section>

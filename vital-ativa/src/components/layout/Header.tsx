@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import * as React from "react";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,8 +24,43 @@ const navItems = [
   { href: "/experimental", label: "Aula experimental" },
 ];
 
+function UserMenu() {
+  const { data: session, status } = useSession();
+
+  if (status !== "authenticated") return null;
+
+  const nome = session.user?.name ?? session.user?.email ?? "Usuário";
+  const inicial = nome.charAt(0).toUpperCase();
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 rounded-full border border-ink-200 bg-ink-50 px-3 py-1.5">
+        <span
+          className="flex size-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-white"
+          aria-hidden
+        >
+          {inicial}
+        </span>
+        <span className="max-w-[120px] truncate text-sm font-medium text-ink-800">
+          {nome}
+        </span>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => signOut({ callbackUrl: "/" })}
+        className="gap-1.5 text-ink-600 hover:text-red-600"
+      >
+        <LogOut className="size-4" aria-hidden />
+        Sair
+      </Button>
+    </div>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
   const [open, setOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
 
@@ -34,6 +70,8 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const autenticado = status === "authenticated";
 
   return (
     <header
@@ -75,12 +113,18 @@ export function Header() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/experimental">Aula experimental grátis</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/matricula">Matricule-se</Link>
-          </Button>
+          {autenticado ? (
+            <UserMenu />
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/experimental">Aula experimental grátis</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/matricula">Matricule-se</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <Sheet open={open} onOpenChange={setOpen}>
@@ -124,16 +168,47 @@ export function Header() {
               })}
             </nav>
             <div className="mt-auto flex flex-col gap-2 pt-4">
-              <SheetClose asChild>
-                <Button asChild variant="outline" size="lg">
-                  <Link href="/experimental">Aula experimental grátis</Link>
-                </Button>
-              </SheetClose>
-              <SheetClose asChild>
-                <Button asChild size="lg">
-                  <Link href="/matricula">Matricule-se agora</Link>
-                </Button>
-              </SheetClose>
+              {autenticado ? (
+                <>
+                  <div className="flex items-center gap-2 rounded-xl border border-ink-200 bg-ink-50 px-4 py-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
+                      {(session?.user?.name ?? "U").charAt(0).toUpperCase()}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink-900">
+                        {session?.user?.name ?? "Usuário"}
+                      </p>
+                      <p className="truncate text-xs text-ink-500">
+                        {session?.user?.email}
+                      </p>
+                    </div>
+                  </div>
+                  <SheetClose asChild>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => signOut({ callbackUrl: "/" })}
+                      className="gap-2 text-red-600 hover:border-red-300 hover:bg-red-50"
+                    >
+                      <LogOut className="size-4" aria-hidden />
+                      Sair da conta
+                    </Button>
+                  </SheetClose>
+                </>
+              ) : (
+                <>
+                  <SheetClose asChild>
+                    <Button asChild variant="outline" size="lg">
+                      <Link href="/experimental">Aula experimental grátis</Link>
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button asChild size="lg">
+                      <Link href="/matricula">Matricule-se agora</Link>
+                    </Button>
+                  </SheetClose>
+                </>
+              )}
             </div>
           </SheetContent>
         </Sheet>

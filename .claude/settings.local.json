@@ -10,7 +10,12 @@
       "Bash(curl -s -o - -w \"\\\\n---STATUS:%{http_code}---\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
       "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---\" -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\")",
-      "Bash(curl -s -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules\")"
+      "Bash(curl -s -H \"ngrok-skip-browser-warning: true\" \"https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules\")",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules\" -H \"ngrok-skip-browser-warning: true\")",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/createUser\" -X POST -H \"Content-Type: application/json\" -H \"ngrok-skip-browser-warning: true\" -d '{\"name\":\"Test\",\"email\":\"test@test.com\"}')",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/getUser?email=test@test.com\" -H \"ngrok-skip-browser-warning: true\")",
+      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/createUser -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"name\":\"Teste\",\"email\":\"teste@teste.com\"}')",
+      "Bash(pkill -f \"next dev\")"
     ]
   }
 }

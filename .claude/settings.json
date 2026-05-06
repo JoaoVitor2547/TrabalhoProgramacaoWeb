@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/createUser -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"name\":\"Teste Silva\",\"email\":\"teste@gmail.com\"}' -w '\\\\n\\\\nHTTP STATUS: %{http_code}')",
+      "Bash(curl -s https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules -H 'ngrok-skip-browser-warning: true' -w '\\\\nHTTP STATUS: %{http_code}')"
+    ]
+  }
+}

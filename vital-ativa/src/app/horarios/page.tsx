@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HorariosGrid } from "@/components/sections/HorariosGrid";
 import { Section, SectionHeading } from "@/components/ui/section";
+import type { ScheduleAPI } from "@/types";
 
 export const metadata: Metadata = {
   title: "Horários",
@@ -9,7 +10,26 @@ export const metadata: Metadata = {
   alternates: { canonical: "/horarios" },
 };
 
-export default function HorariosPage() {
+async function fetchSchedules(): Promise<ScheduleAPI[]> {
+  try {
+    const res = await fetch(
+      "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
+      {
+        headers: { "ngrok-skip-browser-warning": "true" },
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.schedules ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function HorariosPage() {
+  const schedules = await fetchSchedules();
+
   return (
     <Section>
       <SectionHeading
@@ -18,7 +38,7 @@ export default function HorariosPage() {
         description="Acesso livre de segunda a sexta das 6h às 23h e aos sábados das 8h às 14h. Algumas modalidades exigem agendamento."
       />
       <div className="mt-10">
-        <HorariosGrid />
+        <HorariosGrid schedules={schedules} />
       </div>
     </Section>
   );

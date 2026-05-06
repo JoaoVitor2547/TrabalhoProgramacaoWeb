@@ -7,12 +7,8 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FALLBACK_PLANOS } from "@/lib/api";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { PlanoAPI, ObjetivoAPI } from "@/types";
-
-const API_URL = "https://unwaxed-shoddily-mariam.ngrok-free.dev/plans";
-
 
 const objetivoLabels: Record<ObjetivoAPI, string> = {
   HIPERTROFIA: "Hipertrofia",
@@ -46,10 +42,11 @@ interface PlanoCardProps {
   plano: PlanoAPI;
   index: number;
   popular: boolean;
+  autenticado: boolean;
   onAssinar: () => void;
 }
 
-function PlanoCard({ plano, index, popular, onAssinar }: PlanoCardProps) {
+function PlanoCard({ plano, index, popular, autenticado, onAssinar }: PlanoCardProps) {
   const modalityNames = plano.modalities.map((m) => m.modality.name);
   const objetivos = getPlanoObjetivos(plano);
   const preco = parseFloat(plano.price);
@@ -138,42 +135,25 @@ function PlanoCard({ plano, index, popular, onAssinar }: PlanoCardProps) {
         variant={popular ? "primary" : "dark"}
         onClick={onAssinar}
       >
-        Matricule-se agora
+        {autenticado ? "Matricule-se agora" : "Faça login para assinar"}
       </Button>
     </motion.article>
   );
 }
 
-export function PlanosGrid() {
-  const { data: session } = useSession()
+export function PlanosGrid({ planos }: { planos: PlanoAPI[] }) {
+  const { status } = useSession()
   const router = useRouter()
-  const [planos, setPlanos] = React.useState<PlanoAPI[]>(FALLBACK_PLANOS);
-
-  React.useEffect(() => {
-    fetch(API_URL, {
-      method: "GET",
-      headers: { "ngrok-skip-browser-warning": "true" },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`${res.status}`);
-        return res.json();
-      })
-      .then((json) => {
-        const data = json.data as PlanoAPI[];
-        if (data?.length) setPlanos(reorderPlanos(data));
-      })
-      .catch(() => {
-        // mantém fallback local
-      });
-  }, []);
+  const autenticado = status === "authenticated"
+  const planosOrdenados = React.useMemo(() => reorderPlanos(planos), [planos])
 
   const todosObjetivos = React.useMemo<ObjetivoAPI[]>(() => {
     const set = new Set<ObjetivoAPI>();
-    for (const p of planos) {
+    for (const p of planosOrdenados) {
       for (const m of p.modalities) set.add(m.modality.objective);
     }
     return [...set];
-  }, [planos]);
+  }, [planosOrdenados]);
 
   const [filters, setFilters] = React.useState<Set<ObjetivoAPI>>(new Set());
 
@@ -187,16 +167,16 @@ export function PlanosGrid() {
   };
 
   const filtered = React.useMemo(() => {
-    if (filters.size === 0) return planos;
-    return planos.filter((p) => {
+    if (filters.size === 0) return planosOrdenados;
+    return planosOrdenados.filter((p) => {
       const planoObjs = getPlanoObjetivos(p);
       return [...filters].every((f) => planoObjs.includes(f));
     });
   }, [filters, planos]);
 
   const handleAssinar = () => {
-    if (!session) {
-      router.push("/login?callbackUrl=/matricula")
+    if (!autenticado) {
+      router.push("/login?callbackUrl=/planos")
     } else {
       router.push("/matricula")
     }
@@ -267,6 +247,7 @@ export function PlanosGrid() {
               plano={plano}
               index={i}
               popular={isPopular(plano)}
+              autenticado={autenticado}
               onAssinar={handleAssinar}
             />
           ))}

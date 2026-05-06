@@ -3,11 +3,8 @@
 import * as React from "react";
 import { Check, ChevronDown, Minus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { FALLBACK_PLANOS } from "@/lib/api";
 import { cn, formatCurrency } from "@/lib/utils";
 import type { PlanoAPI, ObjetivoAPI } from "@/types";
-
-const API_URL = "https://unwaxed-shoddily-mariam.ngrok-free.dev/plans";
 
 const objetivoLabels: Record<ObjetivoAPI, string> = {
   HIPERTROFIA: "Hipertrofia",
@@ -27,27 +24,8 @@ function getAllModalities(planos: PlanoAPI[]) {
   return [...map.values()].sort((a, b) => a.id - b.id);
 }
 
-export function PlanosComparador() {
-  const [planos, setPlanos] = React.useState<PlanoAPI[]>(FALLBACK_PLANOS);
+export function PlanosComparador({ planos }: { planos: PlanoAPI[] }) {
   const [expandido, setExpandido] = React.useState<number | null>(null);
-
-  React.useEffect(() => {
-    fetch(API_URL, {
-      method: "GET",
-      headers: { "ngrok-skip-browser-warning": "true" },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error(`${res.status}`);
-        return res.json();
-      })
-      .then((json) => {
-        const data = json.data as PlanoAPI[];
-        if (data?.length) setPlanos(data);
-      })
-      .catch(() => {
-        // mantém fallback local
-      });
-  }, []);
 
   const todasModalidades = React.useMemo(() => getAllModalities(planos), [planos]);
 
