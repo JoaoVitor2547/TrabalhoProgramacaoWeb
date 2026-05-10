@@ -22,8 +22,6 @@ import { onlyDigits } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import type { ModalidadeAPI, ScheduleAPI } from "@/types";
 
-const API_BASE = "https://unwaxed-shoddily-mariam.ngrok-free.dev";
-const HEADERS = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" };
 
 const bookingSchema = z.object({
   name: z
@@ -76,9 +74,9 @@ export function AulaExperimentalSection({ schedules }: { schedules: ScheduleAPI[
       return;
     }
 
-    const res = await fetch(`${API_BASE}/booking/experimental`, {
+    const res = await fetch("/api/experimental", {
       method: "POST",
-      headers: { ...HEADERS, "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: data.name,
         contact: onlyDigits(data.contact),
@@ -100,9 +98,6 @@ export function AulaExperimentalSection({ schedules }: { schedules: ScheduleAPI[
         <p className="mt-2 text-sm text-brand-800">
           Nossa equipe entrará em contato para confirmar sua aula experimental.
         </p>
-        <Button className="mt-6" onClick={() => setSucesso(false)} variant="outline">
-          Fazer outra solicitação
-        </Button>
       </div>
     );
   }

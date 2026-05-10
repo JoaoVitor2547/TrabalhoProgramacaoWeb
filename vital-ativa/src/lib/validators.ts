@@ -129,51 +129,25 @@ export const matriculaSchema = z.object({
 
 export type MatriculaInput = z.infer<typeof matriculaSchema>;
 
-const dataFuturaNaoDomingo = z
-  .string()
-  .min(1, "Selecione uma data")
-  .refine((v) => /^\d{4}-\d{2}-\d{2}$/.test(v), "Data inválida")
-  .refine((v) => {
-    const date = new Date(`${v}T00:00:00`);
-    return !Number.isNaN(date.getTime());
-  }, "Data inválida")
-  .refine((v) => {
-    const date = new Date(`${v}T00:00:00`);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date.getTime() >= today.getTime();
-  }, "A data não pode estar no passado")
-  .refine((v) => {
-    const date = new Date(`${v}T00:00:00`);
-    return date.getDay() !== 0;
-  }, "Não atendemos aos domingos");
 
 export const experimentalSchema = z.object({
-  nome: nomeCompletoSchema,
-  email: emailSchema,
-  telefone: telefoneSchema,
-  modalidade: z.enum(
-    [
-      "musculacao",
-      "cross",
-      "funcional",
-      "spinning",
-      "pilates",
-      "yoga",
-      "personal",
-    ],
-    { error: () => ({ message: "Selecione uma modalidade" }) },
-  ),
-  dataPreferencial: dataFuturaNaoDomingo,
-  origem: z
+  name: z
     .string()
-    .transform(normalizeText)
-    .pipe(z.string().max(120))
-    .optional()
-    .or(z.literal("")),
-  aceiteTermos: z.literal(true, {
-    error: () => ({ message: "Você precisa aceitar os termos" }),
-  }),
+    .min(3, "Informe seu nome completo")
+    .regex(/^[A-Za-zÀ-ÿ\s]{3,}$/u, "Apenas letras são permitidas"),
+  contact: z
+    .string()
+    .transform(onlyDigits)
+    .pipe(
+      z
+        .string()
+        .min(10, "Telefone inválido (mínimo 10 dígitos)")
+        .max(11, "Telefone inválido"),
+    ),
+  modality: z
+    .number({ error: () => ({ message: "Selecione uma modalidade" }) })
+    .int()
+    .positive(),
 });
 
 export type ExperimentalInput = z.infer<typeof experimentalSchema>;

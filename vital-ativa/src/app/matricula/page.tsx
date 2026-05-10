@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+import { CheckCircle2 } from "lucide-react";
+import { auth } from "@/auth";
 import { MatriculaForm } from "@/components/forms/MatriculaForm";
+import { Button } from "@/components/ui/button";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { FALLBACK_PLANOS } from "@/lib/api";
 import type { PlanoAPI } from "@/types";
@@ -35,7 +42,44 @@ interface Params {
 }
 
 export default async function MatriculaPage({ searchParams }: Params) {
-  const [planos, params] = await Promise.all([fetchPlanos(), searchParams]);
+  const [planos, params, session, cookieStore] = await Promise.all([
+    fetchPlanos(),
+    searchParams,
+    auth(),
+    cookies(),
+  ]);
+
+  const userKey = session?.user?.apiUserId
+    ? String(session.user.apiUserId)
+    : session?.user?.email ?? null;
+  const enrolledCookie = cookieStore.get("va_enrolled")?.value;
+  const jaMatriculado = !!userKey && enrolledCookie === userKey;
+
+  if (jaMatriculado) {
+    return (
+      <Section>
+        <div className="mx-auto max-w-xl text-center">
+          <CheckCircle2 className="mx-auto size-16 text-brand-600" aria-hidden />
+          <h1 className="mt-6 text-2xl font-bold text-ink-900">
+            Você já está matriculado!
+          </h1>
+          <p className="mt-3 text-sm text-ink-600">
+            Sua matrícula na Vital Ativa já foi registrada. Nossa equipe
+            entrará em contato caso necessário.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="primary">
+              <Link href="/horarios">Ver horários das aulas</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/">Voltar ao início</Link>
+            </Button>
+          </div>
+        </div>
+      </Section>
+    );
+  }
+
   const planoInicial =
     typeof params.plano === "string" ? params.plano : undefined;
 

@@ -6,7 +6,15 @@
       "Bash(python3 -m json.tool)",
       "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/plans\" -H \"ngrok-skip-browser-warning: true\")",
       "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/createUser -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"email\":\"teste@gmail.com\"}' -w '\\\\nHTTP: %{http_code}')",
-      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/getUser -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"email\":\"teste@gmail.com\"}' -w '\\\\nHTTP: %{http_code}')"
+      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/getUser -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"email\":\"teste@gmail.com\"}' -w '\\\\nHTTP: %{http_code}')",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/enrollments\" -H \"ngrok-skip-browser-warning: true\" -w \"\\\\nHTTP: %{http_code}\")",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/enrollment\" -H \"ngrok-skip-browser-warning: true\" -w \"\\\\nHTTP: %{http_code}\")",
+      "Bash(curl -s \"https://unwaxed-shoddily-mariam.ngrok-free.dev/\" -H \"ngrok-skip-browser-warning: true\")",
+      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/getEnrollment -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"userId\":3}' -w '\\\\nHTTP: %{http_code}')",
+      "Bash(curl -s https://unwaxed-shoddily-mariam.ngrok-free.dev/getEnrollment/3 -H 'ngrok-skip-browser-warning: true' -w '\\\\nHTTP: %{http_code}')",
+      "Bash(curl -s https://unwaxed-shoddily-mariam.ngrok-free.dev/getUser -X POST -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"email\":\"joaovitorf1611@gmail.com\"}')",
+      "Bash(curl -s https://unwaxed-shoddily-mariam.ngrok-free.dev/enrollment/user/2 -H 'ngrok-skip-browser-warning: true' -w '\\\\nHTTP: %{http_code}')",
+      "Bash(curl -s -X POST https://unwaxed-shoddily-mariam.ngrok-free.dev/getUserEnrollment -H 'ngrok-skip-browser-warning: true' -H 'Content-Type: application/json' -d '{\"userId\":2}' -w '\\\\nHTTP: %{http_code}')"
     ]
   }
 }
