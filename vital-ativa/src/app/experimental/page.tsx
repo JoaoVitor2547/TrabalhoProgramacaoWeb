@@ -55,7 +55,7 @@ export default async function ExperimentalPage() {
             description="Preencha os dados abaixo e nossa equipe entrará em contato para confirmar."
           />
           <div className="mt-10">
-            <AulaExperimentalSection />
+            <AulaExperimentalSection schedules={schedules} />
           </div>
         </div>
       </Section>

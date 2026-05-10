@@ -23,7 +23,7 @@ import { cn } from "@/lib/utils";
 import type { ModalidadeAPI, ScheduleAPI } from "@/types";
 
 const API_BASE = "https://unwaxed-shoddily-mariam.ngrok-free.dev";
-const HEADERS = { "ngrok-skip-browser-warning": "true" };
+const HEADERS = { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" };
 
 const bookingSchema = z.object({
   name: z
@@ -43,18 +43,10 @@ type BookingValues = {
   modality: string;
 };
 
-export function AulaExperimentalSection() {
+export function AulaExperimentalSection({ schedules }: { schedules: ScheduleAPI[] }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const [schedules, setSchedules] = React.useState<ScheduleAPI[]>([]);
   const [sucesso, setSucesso] = React.useState(false);
-
-  React.useEffect(() => {
-    fetch(`${API_BASE}/schedules`, { headers: HEADERS })
-      .then((r) => r.json())
-      .then((json) => setSchedules(json.schedules ?? []))
-      .catch(() => {});
-  }, []);
 
   const modalities = React.useMemo<ModalidadeAPI[]>(() => {
     const map = new Map<number, ModalidadeAPI>();

@@ -14,17 +14,9 @@ async function syncUser(email: string): Promise<number | null> {
       headers: NGROK_HEADERS,
       body: JSON.stringify({ email }),
     })
-
     console.log("[Auth] createUser status:", createRes.status)
 
-    if (createRes.ok) {
-      const data = await createRes.json()
-      console.log("[Auth] createUser response:", data)
-      return data.id ?? data.user?.id ?? null
-    }
-
-    // Usuário já existe — busca via getUser
-    console.log("[Auth] createUser falhou, tentando getUser...")
+    // createUser não retorna o id — sempre busca via getUser
     const getRes = await fetch(`${API_BASE}/getUser`, {
       method: "POST",
       headers: NGROK_HEADERS,
@@ -35,7 +27,7 @@ async function syncUser(email: string): Promise<number | null> {
     if (getRes.ok) {
       const data = await getRes.json()
       console.log("[Auth] getUser response:", data)
-      return data.id ?? data.user?.id ?? null
+      return data.user?.id ?? null
     }
   } catch (err) {
     console.error("[Auth] syncUser erro:", err)
