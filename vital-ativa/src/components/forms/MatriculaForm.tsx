@@ -17,8 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
-import { planos } from "@/data/planos";
 import { maskCep, maskCpf, maskPhone } from "@/lib/masks";
+import type { PlanoAPI } from "@/types";
 import { matriculaSchema, type MatriculaInput } from "@/lib/validators";
 import { fetchCep } from "@/lib/viacep";
 import { onlyDigits } from "@/lib/utils";
@@ -31,6 +31,7 @@ interface SucessoState {
 }
 
 interface MatriculaFormProps {
+  planos: PlanoAPI[];
   planoInicial?: string;
 }
 
@@ -38,7 +39,7 @@ type FormValues = Omit<MatriculaInput, "aceiteTermos"> & {
   aceiteTermos: boolean;
 };
 
-export function MatriculaForm({ planoInicial }: MatriculaFormProps) {
+export function MatriculaForm({ planos, planoInicial }: MatriculaFormProps) {
   const { toast } = useToast();
   const [cepStatus, setCepStatus] = React.useState<
     "idle" | "loading" | "error"
@@ -46,7 +47,10 @@ export function MatriculaForm({ planoInicial }: MatriculaFormProps) {
   const [sucesso, setSucesso] = React.useState<SucessoState | null>(null);
   const [cooldown, setCooldown] = React.useState(false);
 
-  const validInicial = planos.find((p) => p.slug === planoInicial)?.slug ?? "";
+  const validInicial =
+    planos.find((p) => String(p.id) === planoInicial)
+      ? planoInicial ?? ""
+      : "";
 
   const {
     register,
@@ -128,7 +132,7 @@ export function MatriculaForm({ planoInicial }: MatriculaFormProps) {
         protocolo: string;
       };
       const planoSelecionado =
-        planos.find((p) => p.slug === data.planoSlug)?.nome ?? "—";
+        planos.find((p) => String(p.id) === data.planoSlug)?.name ?? "—";
       setSucesso({
         protocolo: payload.protocolo,
         nome: data.nome,
@@ -378,9 +382,9 @@ export function MatriculaForm({ planoInicial }: MatriculaFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {planos.map((p) => (
-                      <SelectItem key={p.slug} value={p.slug}>
-                        {p.nome} —{" "}
-                        {p.valorMensal.toLocaleString("pt-BR", {
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.name} —{" "}
+                        {parseFloat(p.price).toLocaleString("pt-BR", {
                           style: "currency",
                           currency: "BRL",
                         })}
