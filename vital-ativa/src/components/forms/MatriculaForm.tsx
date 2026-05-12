@@ -122,7 +122,10 @@ export function MatriculaForm({ planos, planoInicial }: MatriculaFormProps) {
       const response = await fetch("/api/matricula", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          planoId: Number(data.planoSlug),
+        }),
       });
       if (!response.ok) {
         throw new Error("Falha ao enviar");

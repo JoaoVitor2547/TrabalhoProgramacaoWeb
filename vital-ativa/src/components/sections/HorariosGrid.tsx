@@ -17,9 +17,10 @@ import type { ModalidadeAPI, ScheduleAPI } from "@/types";
 const DIAS: { value: ScheduleAPI["day_of_week"]; label: string; curto: string }[] = [
   { value: "SEGUNDA", label: "Segunda-feira", curto: "Seg" },
   { value: "TERCA",   label: "Terça-feira",   curto: "Ter" },
-  { value: "QUARTA",  label: "Quarta-feira",   curto: "Qua" },
-  { value: "QUINTA",  label: "Quinta-feira",   curto: "Qui" },
-  { value: "SEXTA",   label: "Sexta-feira",    curto: "Sex" },
+  { value: "QUARTA",  label: "Quarta-feira",  curto: "Qua" },
+  { value: "QUINTA",  label: "Quinta-feira",  curto: "Qui" },
+  { value: "SEXTA",   label: "Sexta-feira",   curto: "Sex" },
+  { value: "SABADO",  label: "Sábado",        curto: "Sáb" },
 ];
 
 const objectiveLabel: Record<ScheduleAPI["modality"]["objective"], { label: string; color: string }> = {
@@ -71,7 +72,7 @@ function GradePorModalidade({
 
   return (
     <div className="overflow-x-auto">
-      <div className="grid min-w-[780px] grid-cols-5 gap-3">
+      <div className="grid min-w-[920px] grid-cols-6 gap-3">
         {DIAS.map((dia) => {
           const aulasDoDia = aulasDaModalidade
             .filter((s) => s.day_of_week === dia.value)

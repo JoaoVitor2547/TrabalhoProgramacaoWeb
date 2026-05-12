@@ -134,7 +134,8 @@ export const experimentalSchema = z.object({
   name: z
     .string()
     .min(3, "Informe seu nome completo")
-    .regex(/^[A-Za-zÀ-ÿ\s]{3,}$/u, "Apenas letras são permitidas"),
+    .regex(/^[A-Za-zÀ-ÿ\s]{3,}$/u, "Apenas letras são permitidas")
+    .max(50, "Nome muito longo"),
   contact: z
     .string()
     .transform(onlyDigits)

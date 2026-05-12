@@ -74,7 +74,13 @@ export interface FotoGaleria {
 
 export type ObjetivoAPI = "HIPERTROFIA" | "EMAGRECIMENTO" | "RELAXAMENTO";
 
-export type DiaSemanaAPI = "SEGUNDA" | "TERCA" | "QUARTA" | "QUINTA" | "SEXTA";
+export type DiaSemanaAPI =
+  | "SEGUNDA"
+  | "TERCA"
+  | "QUARTA"
+  | "QUINTA"
+  | "SEXTA"
+  | "SABADO";
 
 export interface ScheduleAPI {
   id: number;

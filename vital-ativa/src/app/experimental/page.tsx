@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { CheckCircle2 } from "lucide-react";
-import { auth } from "@/auth";
 import { AulaExperimentalSection } from "@/components/sections/AulaExperimentalSection";
 import { HorariosGrid } from "@/components/sections/HorariosGrid";
 import { Section, SectionHeading } from "@/components/ui/section";
@@ -35,17 +34,15 @@ async function fetchSchedules(): Promise<ScheduleAPI[]> {
 }
 
 export default async function ExperimentalPage() {
-  const [schedules, session, cookieStore] = await Promise.all([
+  const [schedules, cookieStore] = await Promise.all([
     fetchSchedules(),
-    auth(),
     cookies(),
   ]);
 
-  const userKey = session?.user?.apiUserId
-    ? String(session.user.apiUserId)
-    : session?.user?.email ?? null;
+  // Visitante anônimo — cookie marca se já agendou nos últimos 30 dias
+  const visitorKey = cookieStore.get("va_visitor")?.value;
   const bookedCookie = cookieStore.get("va_experimental")?.value;
-  const jaAgendado = !!userKey && bookedCookie === userKey;
+  const jaAgendado = !!visitorKey && bookedCookie === visitorKey;
 
   return (
     <>

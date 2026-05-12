@@ -43,7 +43,7 @@ interface PlanoCardProps {
   index: number;
   popular: boolean;
   autenticado: boolean;
-  onAssinar: () => void;
+  onAssinar: (planoId: number) => void;
 }
 
 function PlanoCard({ plano, index, popular, autenticado, onAssinar }: PlanoCardProps) {
@@ -133,7 +133,7 @@ function PlanoCard({ plano, index, popular, autenticado, onAssinar }: PlanoCardP
       <Button
         className="mt-6 w-full"
         variant={popular ? "primary" : "dark"}
-        onClick={onAssinar}
+        onClick={() => onAssinar(plano.id)}
       >
         {autenticado ? "Matricule-se agora" : "Faça login para assinar"}
       </Button>
@@ -174,11 +174,12 @@ export function PlanosGrid({ planos }: { planos: PlanoAPI[] }) {
     });
   }, [filters, planos]);
 
-  const handleAssinar = () => {
+  const handleAssinar = (planoId: number) => {
+    const destino = `/matricula?plano=${planoId}`
     if (!autenticado) {
-      router.push("/login?callbackUrl=/planos")
+      router.push(`/login?callbackUrl=${encodeURIComponent(destino)}`)
     } else {
-      router.push("/matricula")
+      router.push(destino)
     }
   }
 

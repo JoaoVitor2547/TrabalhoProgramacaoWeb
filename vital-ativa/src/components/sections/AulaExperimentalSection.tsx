@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CheckCircle2, Loader2 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -42,8 +40,6 @@ type BookingValues = {
 };
 
 export function AulaExperimentalSection({ schedules }: { schedules: ScheduleAPI[] }) {
-  const { data: session } = useSession();
-  const router = useRouter();
   const [sucesso, setSucesso] = React.useState(false);
 
   const modalities = React.useMemo<ModalidadeAPI[]>(() => {
@@ -69,11 +65,6 @@ export function AulaExperimentalSection({ schedules }: { schedules: ScheduleAPI[
   const modalityValue = watch("modality");
 
   const onSubmit = handleSubmit(async (data) => {
-    if (!session) {
-      router.push("/login?callbackUrl=/experimental");
-      return;
-    }
-
     const res = await fetch("/api/experimental", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
