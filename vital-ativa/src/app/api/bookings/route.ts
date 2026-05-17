@@ -10,26 +10,25 @@ const NGROK_HEADERS = {
 };
 
 async function fetchEnrollmentId(userId: number): Promise<number | null> {
-  try {
-    const res = await fetch(`${API_BASE}/enrollment/user/${userId}`, {
-      headers: { "ngrok-skip-browser-warning": "true" },
-    });
-    if (res.ok) {
-      const json = await res.json();
-      return json.data?.id ?? json.id ?? null;
+  const endpoints = [
+    `${API_BASE}/enrollment/user/${userId}`,
+    `${API_BASE}/enrollment/${userId}`,
+    `${API_BASE}/enrollments/user/${userId}`,
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const res = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
+      const text = await res.text();
+      console.log(`[bookings] enrollment fetch ${url} → ${res.status}: ${text}`);
+      if (res.ok) {
+        const json = JSON.parse(text);
+        const id = json.data?.id ?? json.enrollment?.id ?? json.id ?? (Array.isArray(json.data) ? json.data[0]?.id : null);
+        if (typeof id === "number") return id;
+      }
+    } catch (e) {
+      console.error(`[bookings] enrollment fetch erro em ${url}:`, e);
     }
-    // tenta endpoint alternativo
-    const res2 = await fetch(`${API_BASE}/enrollment?userId=${userId}`, {
-      headers: { "ngrok-skip-browser-warning": "true" },
-    });
-    if (res2.ok) {
-      const json2 = await res2.json();
-      const list = json2.data ?? json2.enrollments ?? json2;
-      if (Array.isArray(list) && list.length > 0) return list[0].id ?? null;
-      return list?.id ?? null;
-    }
-  } catch {
-    // ignora
   }
   return null;
 }
@@ -58,13 +57,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 422 });
   }
 
-  // Tenta buscar enrollmentId — se não encontrar, tenta com userId direto
   const enrollmentId = await fetchEnrollmentId(apiUserId);
+  console.log("[bookings] enrollmentId resolvido:", enrollmentId, "para userId:", apiUserId);
 
-  const payload = enrollmentId !== null
-    ? { enrollmentId, scheduleId, booking_date }
-    : { userId: apiUserId, scheduleId, booking_date };
+  if (enrollmentId === null) {
+    return NextResponse.json({ ok: false, error: "enrollment_not_found" }, { status: 409 });
+  }
 
+  const payload = { enrollmentId, scheduleId, booking_date };
   console.log("[bookings] payload:", JSON.stringify(payload));
 
   const apiRes = await fetch(`${API_BASE}/booking`, {
@@ -73,12 +73,12 @@ export async function POST(req: Request) {
     body: JSON.stringify(payload),
   });
 
-  const errBody = await apiRes.text().catch(() => "");
-  console.log("[bookings] status:", apiRes.status, "body:", errBody);
+  const resText = await apiRes.text().catch(() => "");
+  console.log("[bookings] resposta:", apiRes.status, resText);
 
   if (!apiRes.ok) {
     return NextResponse.json(
-      { ok: false, error: "api_error", detail: errBody },
+      { ok: false, error: "api_error", detail: resText },
       { status: 502 },
     );
   }
