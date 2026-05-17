@@ -9,25 +9,6 @@ const NGROK_HEADERS = {
   "Content-Type": "application/json",
 };
 
-async function fetchEnrollmentId(userId: number): Promise<number | null> {
-  try {
-    const res = await fetch(`${API_BASE}/booking/list`, {
-      method: "POST",
-      headers: NGROK_HEADERS,
-      body: JSON.stringify({ userId }),
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const list = json.data ?? json.bookings ?? json;
-    if (Array.isArray(list) && list.length > 0) {
-      return list[0].enrollmentId ?? null;
-    }
-  } catch {
-    // ignora
-  }
-  return null;
-}
-
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) {
@@ -52,15 +33,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 422 });
   }
 
-  const enrollmentId = await fetchEnrollmentId(apiUserId);
-  if (enrollmentId === null) {
-    return NextResponse.json({ ok: false, error: "enrollment_not_found" }, { status: 409 });
-  }
-
   const apiRes = await fetch(`${API_BASE}/booking`, {
     method: "POST",
     headers: NGROK_HEADERS,
-    body: JSON.stringify({ enrollmentId, scheduleId, booking_date }),
+    body: JSON.stringify({ user: apiUserId, scheduleId, booking_date }),
   });
 
   const resText = await apiRes.text().catch(() => "");
