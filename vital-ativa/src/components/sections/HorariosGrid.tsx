@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { CalendarClock, Table2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +33,42 @@ const objectiveLabel: Record<ScheduleAPI["modality"]["objective"], { label: stri
 
 function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
   const obj = objectiveLabel[schedule.modality.objective];
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  async function handleAgendar() {
+    if (status !== "authenticated") {
+      router.push(`/login?callbackUrl=/horarios`);
+      return;
+    }
+    if (typeof session?.user?.apiUserId !== "number") {
+      router.push("/matricula");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scheduleId: schedule.id, booking_date: today }),
+      });
+      if (!res.ok) {
+        setError("Não foi possível agendar. Tente novamente.");
+        return;
+      }
+      setSuccess(true);
+    } catch {
+      setError("Erro de conexão. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <article className="flex h-full flex-col gap-2 rounded-xl border border-ink-200 bg-white p-3 text-left shadow-sm transition-shadow hover:shadow-md">
       <p className="font-semibold text-ink-900">
@@ -50,13 +88,26 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
           <Users className="size-3" aria-hidden />
           {schedule.max_capacity}
         </span>
-        {schedule.needs_booking && (
-          <Badge variant="warning" className="text-[10px]">
-            <CalendarClock className="size-3" aria-hidden />
-            Agendar
-          </Badge>
-        )}
       </div>
+      {schedule.needs_booking && (
+        <div className="mt-1 flex flex-col gap-1">
+          {success ? (
+            <span className="text-[11px] font-medium text-green-600">Agendado!</span>
+          ) : (
+            <Button
+              size="sm"
+              variant="primary"
+              disabled={loading}
+              onClick={handleAgendar}
+              className="w-full text-[11px]"
+            >
+              <CalendarClock className="size-3" aria-hidden />
+              {loading ? "Agendando…" : "Agendar"}
+            </Button>
+          )}
+          {error && <span className="text-[10px] text-red-600">{error}</span>}
+        </div>
+      )}
     </article>
   );
 }
