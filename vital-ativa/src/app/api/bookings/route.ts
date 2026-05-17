@@ -10,24 +10,49 @@ const NGROK_HEADERS = {
 };
 
 async function fetchEnrollmentId(userId: number): Promise<number | null> {
-  const endpoints = [
+  // Tenta POST /enrollment/list com { userId } (padrão da API)
+  const postCandidates: Array<{ url: string; body: object }> = [
+    { url: `${API_BASE}/enrollment/list`, body: { userId } },
+    { url: `${API_BASE}/enrollments/list`, body: { userId } },
+  ];
+  for (const { url, body } of postCandidates) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true", "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      console.log(`[bookings] enrollment POST ${url} → ${res.status}: ${text}`);
+      if (res.ok) {
+        const json = JSON.parse(text);
+        const list = json.data ?? json.enrollments ?? json;
+        if (Array.isArray(list) && list.length > 0) return list[0].id ?? null;
+        const id = json.data?.id ?? json.enrollment?.id ?? json.id;
+        if (typeof id === "number") return id;
+      }
+    } catch (e) {
+      console.error(`[bookings] enrollment POST erro em ${url}:`, e);
+    }
+  }
+
+  // Tenta GET
+  const getCandidates = [
     `${API_BASE}/enrollment/user/${userId}`,
     `${API_BASE}/enrollment/${userId}`,
-    `${API_BASE}/enrollments/user/${userId}`,
   ];
-
-  for (const url of endpoints) {
+  for (const url of getCandidates) {
     try {
       const res = await fetch(url, { headers: { "ngrok-skip-browser-warning": "true" } });
       const text = await res.text();
-      console.log(`[bookings] enrollment fetch ${url} → ${res.status}: ${text}`);
+      console.log(`[bookings] enrollment GET ${url} → ${res.status}: ${text}`);
       if (res.ok) {
         const json = JSON.parse(text);
         const id = json.data?.id ?? json.enrollment?.id ?? json.id ?? (Array.isArray(json.data) ? json.data[0]?.id : null);
         if (typeof id === "number") return id;
       }
     } catch (e) {
-      console.error(`[bookings] enrollment fetch erro em ${url}:`, e);
+      console.error(`[bookings] enrollment GET erro em ${url}:`, e);
     }
   }
   return null;
