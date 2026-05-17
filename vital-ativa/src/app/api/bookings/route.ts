@@ -9,6 +9,41 @@ const NGROK_HEADERS = {
   "Content-Type": "application/json",
 };
 
+async function fetchEnrollmentId(userId: number): Promise<number | null> {
+  // Tenta via booking/list — se o usuário já tem bookings, tem enrollmentId
+  try {
+    const res = await fetch(`${API_BASE}/booking/list`, {
+      method: "POST",
+      headers: NGROK_HEADERS,
+      body: JSON.stringify({ userId }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const list: Array<{ enrollmentId?: number }> = json.data ?? json.bookings ?? json;
+      if (Array.isArray(list) && list.length > 0 && typeof list[0].enrollmentId === "number") {
+        return list[0].enrollmentId;
+      }
+    }
+  } catch { /* ignora */ }
+
+  // Tenta GET /enrollment direto
+  try {
+    const res = await fetch(`${API_BASE}/enrollment`, {
+      headers: { "ngrok-skip-browser-warning": "true" },
+    });
+    if (res.ok) {
+      const json = await res.json();
+      const list: Array<{ id?: number; userId?: number; user?: number }> = json.data ?? json.enrollments ?? json;
+      if (Array.isArray(list)) {
+        const found = list.find((e) => e.userId === userId || e.user === userId);
+        if (found && typeof found.id === "number") return found.id;
+      }
+    }
+  } catch { /* ignora */ }
+
+  return null;
+}
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) {
@@ -33,10 +68,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "invalid_body" }, { status: 422 });
   }
 
+  const enrollmentId = await fetchEnrollmentId(apiUserId);
+  if (enrollmentId === null) {
+    return NextResponse.json({ ok: false, error: "enrollment_not_found" }, { status: 409 });
+  }
+
   const apiRes = await fetch(`${API_BASE}/booking`, {
     method: "POST",
     headers: NGROK_HEADERS,
-    body: JSON.stringify({ user: apiUserId, scheduleId, booking_date: new Date(booking_date).toISOString() }),
+    body: JSON.stringify({ enrollment: enrollmentId, schedule: scheduleId, booking_date }),
   });
 
   const resText = await apiRes.text().catch(() => "");
