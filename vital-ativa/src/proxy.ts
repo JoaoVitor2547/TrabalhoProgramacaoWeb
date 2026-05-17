@@ -1,4 +1,3 @@
-export { auth as proxy } from "@/auth"
 import { auth } from "@/auth"
 import { NextResponse } from "next/server"
 
@@ -9,8 +8,6 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl)
   }
 })
-
-
 
 export const config = {
   matcher: ["/planos", "/experimental", "/matricula"],
