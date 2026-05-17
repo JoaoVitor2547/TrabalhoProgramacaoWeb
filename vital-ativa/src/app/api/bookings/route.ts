@@ -10,38 +10,16 @@ const NGROK_HEADERS = {
 };
 
 async function fetchEnrollmentId(userId: number): Promise<number | null> {
-  // Tenta via booking/list — se o usuário já tem bookings, tem enrollmentId
   try {
-    const res = await fetch(`${API_BASE}/booking/list`, {
-      method: "POST",
-      headers: NGROK_HEADERS,
-      body: JSON.stringify({ userId }),
-    });
-    if (res.ok) {
-      const json = await res.json();
-      const list: Array<{ enrollmentId?: number }> = json.data ?? json.bookings ?? json;
-      if (Array.isArray(list) && list.length > 0 && typeof list[0].enrollmentId === "number") {
-        return list[0].enrollmentId;
-      }
-    }
-  } catch { /* ignora */ }
-
-  // Tenta GET /enrollment direto
-  try {
-    const res = await fetch(`${API_BASE}/enrollment`, {
+    const res = await fetch(`${API_BASE}/enrollment/user/${userId}`, {
       headers: { "ngrok-skip-browser-warning": "true" },
     });
-    if (res.ok) {
-      const json = await res.json();
-      const list: Array<{ id?: number; userId?: number; user?: number }> = json.data ?? json.enrollments ?? json;
-      if (Array.isArray(list)) {
-        const found = list.find((e) => e.userId === userId || e.user === userId);
-        if (found && typeof found.id === "number") return found.id;
-      }
-    }
-  } catch { /* ignora */ }
-
-  return null;
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data?.id ?? json.enrollment?.id ?? json.id ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: Request) {
