@@ -111,6 +111,20 @@ export function Header() {
               </Link>
             );
           })}
+          {autenticado && (
+            <Link
+              href="/agendamentos"
+              className={cn(
+                "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                pathname.startsWith("/agendamentos")
+                  ? "text-brand-700"
+                  : "text-ink-700 hover:text-ink-900",
+              )}
+              aria-current={pathname.startsWith("/agendamentos") ? "page" : undefined}
+            >
+              Agendamentos
+            </Link>
+          )}
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -167,6 +181,22 @@ export function Header() {
                   </SheetClose>
                 );
               })}
+              {autenticado && (
+                <SheetClose asChild>
+                  <Link
+                    href="/agendamentos"
+                    className={cn(
+                      "rounded-lg px-3 py-3 text-base font-medium transition-colors",
+                      pathname.startsWith("/agendamentos")
+                        ? "bg-brand-50 text-brand-700"
+                        : "text-ink-800 hover:bg-ink-50",
+                    )}
+                    aria-current={pathname.startsWith("/agendamentos") ? "page" : undefined}
+                  >
+                    Agendamentos
+                  </Link>
+                </SheetClose>
+              )}
             </nav>
             <div className="mt-auto flex flex-col gap-2 pt-4">
               {autenticado ? (
