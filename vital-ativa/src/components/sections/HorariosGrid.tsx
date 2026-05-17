@@ -57,7 +57,9 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scheduleId: schedule.id, booking_date: today }),
       });
+      const resJson = await res.json().catch(() => ({}));
       if (!res.ok) {
+        console.error("[agendar] erro:", resJson);
         setError("Não foi possível agendar. Tente novamente.");
         return;
       }
