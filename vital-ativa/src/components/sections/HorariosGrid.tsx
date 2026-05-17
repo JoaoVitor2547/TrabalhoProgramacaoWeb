@@ -36,7 +36,6 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
-  const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   async function handleAgendar() {
@@ -51,23 +50,31 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
     setLoading(true);
     setError(null);
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const DAY_INDEX: Record<ScheduleAPI["day_of_week"], number> = {
+        SEGUNDA: 1, TERCA: 2, QUARTA: 3, QUINTA: 4, SEXTA: 5, SABADO: 6,
+      };
+      const target = DAY_INDEX[schedule.day_of_week];
+      const date = new Date();
+      const current = date.getDay(); // 0=Dom
+      const diff = (target - current + 7) % 7 || 7;
+      date.setDate(date.getDate() + diff);
+      const booking_date = date.toISOString().slice(0, 10);
+
       const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scheduleId: schedule.id, booking_date: today }),
+        body: JSON.stringify({ scheduleId: schedule.id, booking_date }),
       });
-      const resJson = await res.json().catch(() => ({})) as { ok: boolean; error?: string; detail?: string };
+      if (res.status === 409) {
+        router.push("/matricula");
+        return;
+      }
       if (!res.ok) {
-        console.error("[agendar] erro:", resJson);
-        if (resJson.error === "enrollment_not_found") {
-          router.push("/matricula");
-          return;
-        }
+        const resJson = await res.json().catch(() => ({})) as { detail?: string; error?: string };
         setError(resJson.detail ?? resJson.error ?? "Não foi possível agendar.");
         return;
       }
-      setSuccess(true);
+      router.push("/agendamentos");
     } catch {
       setError("Erro de conexão. Tente novamente.");
     } finally {
@@ -97,20 +104,16 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
       </div>
       {schedule.needs_booking && (
         <div className="mt-1 flex flex-col gap-1">
-          {success ? (
-            <span className="text-[11px] font-medium text-green-600">Agendado!</span>
-          ) : (
-            <Button
-              size="sm"
-              variant="primary"
-              disabled={loading}
-              onClick={handleAgendar}
-              className="w-full text-[11px]"
-            >
-              <CalendarClock className="size-3" aria-hidden />
-              {loading ? "Agendando…" : "Agendar"}
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant="primary"
+            disabled={loading}
+            onClick={handleAgendar}
+            className="w-full text-[11px]"
+          >
+            <CalendarClock className="size-3" aria-hidden />
+            {loading ? "Agendando…" : "Agendar"}
+          </Button>
           {error && <span className="text-[10px] text-red-600">{error}</span>}
         </div>
       )}
