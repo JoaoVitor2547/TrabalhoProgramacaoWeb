@@ -218,9 +218,18 @@ function TabelaCompleta({ schedules }: { schedules: ScheduleAPI[] }) {
   );
 }
 
-export function HorariosGrid({ schedules }: { schedules: ScheduleAPI[] }) {
+export function HorariosGrid({ initialSchedules }: { initialSchedules: ScheduleAPI[] }) {
+  const [schedules, setSchedules] = React.useState<ScheduleAPI[]>(initialSchedules);
   const [view, setView] = React.useState<"tabs" | "tabela">("tabs");
   type Objective = ScheduleAPI["modality"]["objective"];
+
+  React.useEffect(() => {
+    if (initialSchedules.length > 0) return;
+    fetch("/api/schedules")
+      .then((r) => r.json())
+      .then((json) => { if (json.schedules?.length > 0) setSchedules(json.schedules); })
+      .catch(() => {});
+  }, [initialSchedules.length]);
 
   const todosObjetivos = React.useMemo<Objective[]>(() => {
     const set = new Set<Objective>();
@@ -255,7 +264,7 @@ export function HorariosGrid({ schedules }: { schedules: ScheduleAPI[] }) {
   if (schedules.length === 0) {
     return (
       <div className="flex items-center justify-center py-16 text-sm text-ink-400">
-        Nenhum horário disponível no momento.
+        Carregando horários…
       </div>
     );
   }

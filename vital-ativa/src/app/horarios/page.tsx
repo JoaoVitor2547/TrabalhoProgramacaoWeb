@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { HorariosGrid } from "@/components/sections/HorariosGrid";
-import { HorariosGridSkeleton } from "@/components/sections/HorariosGridSkeleton";
 import { Section, SectionHeading } from "@/components/ui/section";
 import type { ScheduleAPI } from "@/types";
 
@@ -13,29 +11,25 @@ export const metadata: Metadata = {
 };
 
 async function fetchSchedules(): Promise<ScheduleAPI[]> {
-  const res = await fetch(
-    "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
-    {
-      headers: { "ngrok-skip-browser-warning": "true" },
-      next: { revalidate: 3600 },
-    },
-  );
-  if (!res.ok) throw new Error(`schedules: ${res.status}`);
-  const json = await res.json();
-  return json.schedules ?? [];
-}
-
-async function HorariosContent() {
-  let schedules: ScheduleAPI[] = [];
   try {
-    schedules = await fetchSchedules();
+    const res = await fetch(
+      "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
+      {
+        headers: { "ngrok-skip-browser-warning": "true" },
+        next: { revalidate: 300 },
+      },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.schedules ?? [];
   } catch {
-    // ISR preservará o cache anterior na próxima revalidação
+    return [];
   }
-  return <HorariosGrid schedules={schedules} />;
 }
 
-export default function HorariosPage() {
+export default async function HorariosPage() {
+  const schedules = await fetchSchedules();
+
   return (
     <Section>
       <SectionHeading
@@ -44,9 +38,7 @@ export default function HorariosPage() {
         description="Acesso livre de segunda a sexta das 6h às 23h e aos sábados das 8h às 14h. Algumas modalidades exigem agendamento."
       />
       <div className="mt-10">
-        <Suspense fallback={<HorariosGridSkeleton />}>
-          <HorariosContent />
-        </Suspense>
+        <HorariosGrid initialSchedules={schedules} />
       </div>
     </Section>
   );
