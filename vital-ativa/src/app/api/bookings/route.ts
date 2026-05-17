@@ -38,7 +38,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
-  const apiUserId = session.user.apiUserId;
+  let apiUserId = session.user.apiUserId;
+  if (typeof apiUserId !== "number") {
+    try {
+      const getRes = await fetch(`${API_BASE}/getUser`, {
+        method: "POST",
+        headers: NGROK_HEADERS,
+        body: JSON.stringify({ email: session.user.email }),
+      });
+      if (getRes.ok) {
+        const data = await getRes.json();
+        apiUserId = data.user?.id ?? null;
+      }
+    } catch { /* ignora */ }
+  }
   if (typeof apiUserId !== "number") {
     return NextResponse.json({ ok: false, error: "missing_api_user" }, { status: 409 });
   }
