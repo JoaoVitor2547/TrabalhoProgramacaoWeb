@@ -16,8 +16,18 @@ async function fetchEnrollmentId(userId: number): Promise<number | null> {
     });
     if (!res.ok) return null;
     const json = await res.json();
-    return json.data?.id ?? json.enrollment?.id ?? json.id ?? null;
-  } catch {
+    // tenta várias estruturas possíveis de resposta
+    const id =
+      json.data?.id ??
+      json.enrollment?.id ??
+      json.id ??
+      (Array.isArray(json.data) ? json.data[0]?.id : null) ??
+      (Array.isArray(json) ? json[0]?.id : null) ??
+      null;
+    console.log("[bookings] enrollmentId encontrado:", id, "resposta:", JSON.stringify(json).slice(0, 200));
+    return typeof id === "number" ? id : null;
+  } catch (e) {
+    console.error("[bookings] fetchEnrollmentId erro:", e);
     return null;
   }
 }

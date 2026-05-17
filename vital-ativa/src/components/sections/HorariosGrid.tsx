@@ -60,6 +60,10 @@ function ScheduleCard({ schedule }: { schedule: ScheduleAPI }) {
       const resJson = await res.json().catch(() => ({})) as { ok: boolean; error?: string; detail?: string };
       if (!res.ok) {
         console.error("[agendar] erro:", resJson);
+        if (resJson.error === "enrollment_not_found") {
+          router.push("/matricula");
+          return;
+        }
         setError(resJson.detail ?? resJson.error ?? "Não foi possível agendar.");
         return;
       }
