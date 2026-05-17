@@ -52,12 +52,6 @@ API_BASE_URL="http://localhost:3001"
 npx auth secret
 ```
 
-Ou gere manualmente com:
-
-```bash
-openssl rand -hex 32
-```
-
 ## Setup
 
 ```bash
