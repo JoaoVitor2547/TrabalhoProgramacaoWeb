@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   const apiRes = await fetch(`${API_BASE}/booking`, {
     method: "POST",
     headers: NGROK_HEADERS,
-    body: JSON.stringify({ user: apiUserId, scheduleId, booking_date }),
+    body: JSON.stringify({ user: apiUserId, scheduleId, booking_date: new Date(booking_date).toISOString() }),
   });
 
   const resText = await apiRes.text().catch(() => "");
