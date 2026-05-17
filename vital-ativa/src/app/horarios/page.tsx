@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 async function fetchSchedules(): Promise<ScheduleAPI[]> {
   try {
     const res = await fetch(
-      "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
+      `${process.env.API_BASE_URL!}/schedules`,
       {
         headers: { "ngrok-skip-browser-warning": "true" },
         next: { revalidate: 300 },

@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: "Meus agendamentos",
 };
 
-const API_BASE = "https://unwaxed-shoddily-mariam.ngrok-free.dev";
+const API_BASE = process.env.API_BASE_URL!;
 
 async function fetchBookings(userId: number): Promise<BookingAPI[]> {
     try {

@@ -1,6 +1,6 @@
 import type { PlanoAPI } from "@/types";
 
-const API_BASE = "https://unwaxed-shoddily-mariam.ngrok-free.dev";
+const API_BASE = process.env.API_BASE_URL!;
 
 // Ordem: Vital Fit | Vital Zen (popular, centro) | Vital Total
 export const FALLBACK_PLANOS: PlanoAPI[] = [

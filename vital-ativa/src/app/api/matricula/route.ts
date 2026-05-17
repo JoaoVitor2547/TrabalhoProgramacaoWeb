@@ -6,7 +6,7 @@ import { onlyDigits } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
-const API_BASE = "https://unwaxed-shoddily-mariam.ngrok-free.dev";
+const API_BASE = process.env.API_BASE_URL!;
 const NGROK_HEADERS = {
   "ngrok-skip-browser-warning": "true",
   "Content-Type": "application/json",

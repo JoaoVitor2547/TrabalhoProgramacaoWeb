@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 async function fetchPlanos(): Promise<PlanoAPI[]> {
   try {
     const res = await fetch(
-      "https://unwaxed-shoddily-mariam.ngrok-free.dev/plans",
+      `${process.env.API_BASE_URL!}/plans`,
       {
         headers: { "ngrok-skip-browser-warning": "true" },
         next: { revalidate: 60 },
