@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { HorariosGrid } from "@/components/sections/HorariosGrid";
+import { HorariosGridSkeleton } from "@/components/sections/HorariosGridSkeleton";
 import { Section, SectionHeading } from "@/components/ui/section";
 import type { ScheduleAPI } from "@/types";
 
@@ -15,7 +17,7 @@ async function fetchSchedules(): Promise<ScheduleAPI[]> {
     "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
     {
       headers: { "ngrok-skip-browser-warning": "true" },
-      next: { revalidate: 60 },
+      next: { revalidate: 3600 },
     },
   );
   if (!res.ok) throw new Error(`schedules: ${res.status}`);
@@ -23,14 +25,17 @@ async function fetchSchedules(): Promise<ScheduleAPI[]> {
   return json.schedules ?? [];
 }
 
-export default async function HorariosPage() {
+async function HorariosContent() {
   let schedules: ScheduleAPI[] = [];
   try {
     schedules = await fetchSchedules();
   } catch {
-    // mantém array vazio — ISR preservará o cache anterior na próxima revalidação
+    // ISR preservará o cache anterior na próxima revalidação
   }
+  return <HorariosGrid schedules={schedules} />;
+}
 
+export default function HorariosPage() {
   return (
     <Section>
       <SectionHeading
@@ -39,7 +44,9 @@ export default async function HorariosPage() {
         description="Acesso livre de segunda a sexta das 6h às 23h e aos sábados das 8h às 14h. Algumas modalidades exigem agendamento."
       />
       <div className="mt-10">
-        <HorariosGrid schedules={schedules} />
+        <Suspense fallback={<HorariosGridSkeleton />}>
+          <HorariosContent />
+        </Suspense>
       </div>
     </Section>
   );
