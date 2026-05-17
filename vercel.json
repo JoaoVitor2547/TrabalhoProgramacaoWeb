@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd vital-ativa && npm run build",
+  "outputDirectory": "vital-ativa/.next",
+  "installCommand": "cd vital-ativa && npm install",
+  "framework": "nextjs"
+}
