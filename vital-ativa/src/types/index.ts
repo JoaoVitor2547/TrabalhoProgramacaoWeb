@@ -126,3 +126,19 @@ export interface EnderecoViaCep {
   uf: string;
   erro?: true;
 }
+
+export type BookingStatusAPI =
+  | "PENDENTE"
+  | "CONFIRMADO"
+  | "CANCELADO"
+  | "FALTOU";
+
+export interface BookingAPI {
+  id: number;
+  booking_date: string;
+  created_at: string;
+  status: BookingStatusAPI;
+  enrollmentId: number;
+  scheduleId: number;
+  schedule: ScheduleAPI;
+}
