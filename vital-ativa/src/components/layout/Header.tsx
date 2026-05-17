@@ -21,6 +21,7 @@ const navItems = [
   { href: "/planos", label: "Planos" },
   { href: "/horarios", label: "Horários" },
   { href: "/sobre", label: "Sobre" },
+  { href: "/faq", label: "FAQ" },
   { href: "/experimental", label: "Aula experimental" },
 ];
 
