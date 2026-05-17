@@ -45,7 +45,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account && user) {
         const apiUserId = await syncUser(user.email ?? "")
         token.apiUserId = apiUserId
-        console.log("[Auth] JWT token apiUserId:", token.apiUserId)
+      }
+      // se ainda não tem id (ngrok estava offline no login), tenta de novo
+      if (typeof token.apiUserId !== "number" && token.email) {
+        const apiUserId = await syncUser(token.email as string)
+        if (typeof apiUserId === "number") token.apiUserId = apiUserId
       }
       return token
     },
@@ -53,7 +57,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (typeof token.apiUserId === "number") {
         session.user.apiUserId = token.apiUserId
       }
-      console.log("[Auth] Session user:", session.user)
       return session
     },
   },

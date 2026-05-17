@@ -53,39 +53,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  let apiUserId = session.user.apiUserId;
-  if (typeof apiUserId !== "number") {
-    // tenta recuperar pelo email
-    try {
-      const getRes = await fetch(`${API_BASE}/getUser`, {
-        method: "POST",
-        headers: NGROK_HEADERS,
-        body: JSON.stringify({ email: session.user.email }),
-      });
-      if (getRes.ok) {
-        const data = await getRes.json();
-        apiUserId = data.user?.id ?? null;
-      }
-      if (typeof apiUserId !== "number") {
-        const createRes = await fetch(`${API_BASE}/createUser`, {
-          method: "POST",
-          headers: NGROK_HEADERS,
-          body: JSON.stringify({ email: session.user.email }),
-        });
-        if (createRes.ok) {
-          const getRes2 = await fetch(`${API_BASE}/getUser`, {
-            method: "POST",
-            headers: NGROK_HEADERS,
-            body: JSON.stringify({ email: session.user.email }),
-          });
-          if (getRes2.ok) {
-            const data2 = await getRes2.json();
-            apiUserId = data2.user?.id ?? null;
-          }
-        }
-      }
-    } catch { /* ignora */ }
-  }
+  const apiUserId = session.user.apiUserId;
   if (typeof apiUserId !== "number") {
     return NextResponse.json(
       { ok: false, error: "missing_api_user" },
