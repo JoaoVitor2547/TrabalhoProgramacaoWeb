@@ -167,14 +167,37 @@ function TabelaCompleta({ schedules }: { schedules: ScheduleAPI[] }) {
 
 export function HorariosGrid({ schedules }: { schedules: ScheduleAPI[] }) {
   const [view, setView] = React.useState<"tabs" | "tabela">("tabs");
+  type Objective = ScheduleAPI["modality"]["objective"];
+
+  const todosObjetivos = React.useMemo<Objective[]>(() => {
+    const set = new Set<Objective>();
+    for (const s of schedules) set.add(s.modality.objective);
+    return [...set];
+  }, [schedules]);
+
+  const [filters, setFilters] = React.useState<Set<Objective>>(new Set());
+
+  const toggle = (obj: Objective) => {
+    setFilters((prev) => {
+      const next = new Set(prev);
+      if (next.has(obj)) next.delete(obj);
+      else next.add(obj);
+      return next;
+    });
+  };
+
+  const filteredSchedules = React.useMemo(() => {
+    if (filters.size === 0) return schedules;
+    return schedules.filter((s) => filters.has(s.modality.objective));
+  }, [filters, schedules]);
 
   const modalities = React.useMemo<ModalidadeAPI[]>(() => {
     const map = new Map<number, ModalidadeAPI>();
-    for (const s of schedules) {
+    for (const s of filteredSchedules) {
       if (!map.has(s.modalityId)) map.set(s.modalityId, s.modality);
     }
     return [...map.values()];
-  }, [schedules]);
+  }, [filteredSchedules]);
 
   if (schedules.length === 0) {
     return (
@@ -186,53 +209,114 @@ export function HorariosGrid({ schedules }: { schedules: ScheduleAPI[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex rounded-xl bg-ink-100 p-1">
-          <Button
-            type="button"
-            variant={view === "tabs" ? "dark" : "ghost"}
-            size="sm"
-            onClick={() => setView("tabs")}
-            aria-pressed={view === "tabs"}
+      <div
+        className="flex flex-col gap-3 rounded-2xl border border-ink-200 bg-ink-50 p-5"
+        role="group"
+        aria-labelledby="filtro-objetivo-horarios-label"
+      >
+        <div className="flex items-baseline justify-between gap-3">
+          <p
+            id="filtro-objetivo-horarios-label"
+            className="text-sm font-semibold text-ink-800"
           >
-            <CalendarClock className="size-4" aria-hidden />
-            Por modalidade
-          </Button>
-          <Button
-            type="button"
-            variant={view === "tabela" ? "dark" : "ghost"}
-            size="sm"
-            onClick={() => setView("tabela")}
-            aria-pressed={view === "tabela"}
-          >
-            <Table2 className="size-4" aria-hidden />
-            Tabela completa
-          </Button>
+            Filtrar por objetivo
+          </p>
+          {filters.size > 0 ? (
+            <button
+              type="button"
+              onClick={() => setFilters(new Set())}
+              className="text-xs font-medium text-brand-700 hover:text-brand-800"
+            >
+              Limpar filtros
+            </button>
+          ) : null}
         </div>
-        <p className="text-xs text-ink-500">
-          Deslize horizontalmente para ver todos os dias
-        </p>
+        <div className="flex flex-wrap gap-2">
+          {todosObjetivos.map((obj) => {
+            const active = filters.has(obj);
+            return (
+              <button
+                key={obj}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggle(obj)}
+                className={cn(
+                  "rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1",
+                  active
+                    ? "border-brand-600 bg-brand-600 text-white"
+                    : "border-ink-300 bg-white text-ink-700 hover:border-brand-400 hover:text-brand-700",
+                )}
+              >
+                {objectiveLabel[obj].label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {view === "tabs" ? (
-        <Tabs defaultValue={String(modalities[0]?.id)} className="w-full">
-          <div className="-mx-4 overflow-x-auto px-4">
-            <TabsList>
-              {modalities.map((m) => (
-                <TabsTrigger key={m.id} value={String(m.id)}>
-                  {m.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
-          {modalities.map((m) => (
-            <TabsContent key={m.id} value={String(m.id)}>
-              <GradePorModalidade modality={m} schedules={schedules} />
-            </TabsContent>
-          ))}
-        </Tabs>
+      {filteredSchedules.length === 0 ? (
+        <div
+          role="status"
+          className="rounded-2xl border border-dashed border-ink-300 bg-white p-10 text-center"
+        >
+          <p className="text-base font-semibold text-ink-900">
+            Nenhuma aula encontrada para esse objetivo.
+          </p>
+          <p className="mt-1 text-sm text-ink-600">
+            Remova algum filtro para ver mais opções.
+          </p>
+        </div>
       ) : (
-        <TabelaCompleta schedules={schedules} />
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex rounded-xl bg-ink-100 p-1">
+              <Button
+                type="button"
+                variant={view === "tabs" ? "dark" : "ghost"}
+                size="sm"
+                onClick={() => setView("tabs")}
+                aria-pressed={view === "tabs"}
+              >
+                <CalendarClock className="size-4" aria-hidden />
+                Por modalidade
+              </Button>
+              <Button
+                type="button"
+                variant={view === "tabela" ? "dark" : "ghost"}
+                size="sm"
+                onClick={() => setView("tabela")}
+                aria-pressed={view === "tabela"}
+              >
+                <Table2 className="size-4" aria-hidden />
+                Tabela completa
+              </Button>
+            </div>
+            <p className="text-xs text-ink-500">
+              Deslize horizontalmente para ver todos os dias
+            </p>
+          </div>
+
+          {view === "tabs" ? (
+            <Tabs defaultValue={String(modalities[0]?.id)} className="w-full">
+              <div className="-mx-4 overflow-x-auto px-4">
+                <TabsList>
+                  {modalities.map((m) => (
+                    <TabsTrigger key={m.id} value={String(m.id)}>
+                      {m.name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+              {modalities.map((m) => (
+                <TabsContent key={m.id} value={String(m.id)}>
+                  <GradePorModalidade modality={m} schedules={filteredSchedules} />
+                </TabsContent>
+              ))}
+            </Tabs>
+          ) : (
+            <TabelaCompleta schedules={filteredSchedules} />
+          )}
+        </>
       )}
     </div>
   );
