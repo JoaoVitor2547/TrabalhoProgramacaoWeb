@@ -1,93 +1,79 @@
-# Vital Ativa — Front End
+# TrabalhoProgramacaoWeb — Front End Vital Ativa
 
-Site institucional e de conversão da academia Vital Ativa. Trabalho da disciplina de
-Programação Web (ICEV).
+Interface web do sistema de academia Vital Ativa. Trabalho da disciplina de Programação Web (ICEV).
 
 ## Stack
 
-- **Next.js 15** (App Router, Server Components)
-- **TypeScript**
-- **TailwindCSS 4**
-- **React Hook Form + Zod** (validação)
-- **NextAuth (Google Provider)** — autenticação para matrícula
-- **Framer Motion** — micro-interações
-- **ViaCEP** — preenchimento automático de endereço
-
-## Estrutura
-
-```
-src/
-├─ app/                     # Rotas (App Router)
-│  ├─ page.tsx              # Home
-│  ├─ planos/               # Listagem + filtro por objetivo
-│  ├─ horarios/             # Grade segunda–sábado
-│  ├─ matricula/            # Formulário de matrícula
-│  ├─ experimental/         # Agendamento de aula experimental (público)
-│  ├─ sobre/                # Institucional (história, equipe, galeria, depoimentos)
-│  ├─ login/                # Tela de login Google
-│  └─ api/                  # Route handlers (proxy para o back end Fastify)
-├─ components/
-│  ├─ forms/                # MatriculaForm, TermosDialog
-│  ├─ sections/             # Hero, PlanosGrid, HorariosGrid, EquipeGrid, ...
-│  └─ ui/                   # Componentes base (button, input, dialog, ...)
-├─ data/                    # Dados estáticos (equipe, galeria, depoimentos)
-├─ lib/                     # api.ts, viacep.ts, validators.ts, masks.ts, utils.ts
-└─ types/                   # Tipagens compartilhadas
-```
-
-## Requisitos do briefing atendidos
-
-- Listagem de planos com valor, duração, vantagens e diferenciais (avaliação física,
-  nutricionista, acesso ao app).
-- Filtro por objetivo (emagrecimento, hipertrofia, relaxamento).
-- Grade de horários por modalidade, segunda a sábado, com indicação de agendamento.
-- Botão "Matricule-se agora" com pré-seleção do plano via query string.
-- Formulário de matrícula com validação (nome, CPF, plano, horário preferencial,
-  aceite dos termos) + ViaCEP integrado.
-- Cadastro de visitantes para aula experimental (sem necessidade de login).
-- Página institucional com história, galeria de fotos, equipe (formação + CREF) e
-  depoimentos.
+- **Next.js 15** — framework React com App Router
+- **Auth.js (NextAuth)** — autenticação via Google OAuth
+- **TypeScript** — tipagem estática
+- **Tailwind CSS** — estilização
 
 ## Pré-requisitos
 
 - Node.js 20+
-- Acesso ao back end (GymBackEnd) rodando em `http://localhost:3001` ou no túnel
-  ngrok configurado em `src/auth.ts` e nos route handlers de `/api/*`.
+- Conta no [Google Cloud Console](https://console.cloud.google.com) para as credenciais OAuth
+- Backend GymBackEnd rodando localmente
 
 ## Variáveis de ambiente
 
-Criar `.env.local` na raiz:
+Crie um arquivo `.env.local` na raiz do projeto com o seguinte conteúdo:
 
-```bash
-# NextAuth
-AUTH_SECRET="gere-com-openssl-rand-base64-32"
-AUTH_GOOGLE_ID="..."
-AUTH_GOOGLE_SECRET="..."
-NEXTAUTH_URL="http://localhost:3000"
+```env
+# Autenticação (Auth.js)
+npx auth secret
+AUTH_SECRET="gere_uma_string_aleatoria_longa"
+
+# Google OAuth (obtenha em console.cloud.google.com)
+AUTH_GOOGLE_ID="seu_google_client_id.apps.googleusercontent.com"
+AUTH_GOOGLE_SECRET="seu_google_client_secret"
+
+# URL base da API backend
+API_BASE_URL="http://localhost:3001"
 ```
 
-## Rodando localmente
+> **Nunca commite o `.env.local` com suas credenciais reais.** Confirme que `.env.local` está no `.gitignore`.
+
+### Como obter as credenciais do Google OAuth
+
+1. Acesse [console.cloud.google.com](https://console.cloud.google.com)
+2. Crie um projeto (ou selecione um existente)
+3. Vá em **APIs e Serviços → Credenciais → Criar credenciais → ID do cliente OAuth**
+4. Tipo de aplicativo: **Aplicativo da Web**
+5. Adicione as seguintes URLs de callback autorizadas:
+   ```
+   http://localhost:3000/api/auth/callback/google
+   ```
+6. Copie o **Client ID** e o **Client Secret** para o `.env.local`
+
+### Gerando o AUTH_SECRET
 
 ```bash
+npx auth secret
+```
+
+Ou gere manualmente com:
+
+```bash
+openssl rand -hex 32
+```
+
+## Setup
+
+```bash
+# 1. Instalar dependências
 npm install
+
+# 2. Iniciar o servidor de desenvolvimento
 npm run dev
 ```
 
-Aberto em [http://localhost:3000](http://localhost:3000).
+Aplicação disponível em `http://localhost:3000`.
 
-## Integrações back end
+> **Atenção:** o backend precisa estar rodando em `http://localhost:3001` antes de iniciar o front. Siga o setup do repositório [GymBackEnd](https://github.com/LuizMath/GymBackEnd).
 
-| Rota Next         | Rota Fastify              | Método |
-| ----------------- | ------------------------- | ------ |
-| `/api/matricula`  | `/enrollment`             | POST   |
-| `/api/experimental` | `/booking/experimental` | POST   |
-| (server)          | `/plans`                  | GET    |
-| (server)          | `/schedules`              | GET    |
-| (server, auth)    | `/createUser`, `/getUser` | POST   |
+## Observações de implementação
 
-## Build
-
-```bash
-npm run build
-npm run start
-```
+- A autenticação é feita via Google OAuth com Auth.js — o login retorna uma sessão com o e-mail do usuário.
+- As requisições à API usam `API_BASE_URL` definida no `.env.local`; em desenvolvimento aponta para `localhost:3001`.
+- Em produção, substitua `API_BASE_URL` pela URL pública do backend.
