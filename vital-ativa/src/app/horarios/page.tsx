@@ -11,24 +11,25 @@ export const metadata: Metadata = {
 };
 
 async function fetchSchedules(): Promise<ScheduleAPI[]> {
-  try {
-    const res = await fetch(
-      "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
-      {
-        headers: { "ngrok-skip-browser-warning": "true" },
-        next: { revalidate: 60 },
-      },
-    );
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.schedules ?? [];
-  } catch {
-    return [];
-  }
+  const res = await fetch(
+    "https://unwaxed-shoddily-mariam.ngrok-free.dev/schedules",
+    {
+      headers: { "ngrok-skip-browser-warning": "true" },
+      next: { revalidate: 60 },
+    },
+  );
+  if (!res.ok) throw new Error(`schedules: ${res.status}`);
+  const json = await res.json();
+  return json.schedules ?? [];
 }
 
 export default async function HorariosPage() {
-  const schedules = await fetchSchedules();
+  let schedules: ScheduleAPI[] = [];
+  try {
+    schedules = await fetchSchedules();
+  } catch {
+    // mantém array vazio — ISR preservará o cache anterior na próxima revalidação
+  }
 
   return (
     <Section>
