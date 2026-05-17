@@ -54,7 +54,7 @@ export default async function ExperimentalPage() {
             description="Escolha uma modalidade, um dia disponível e apareça. Nossa equipe te recepciona e monta um treino de introdução."
           />
           <div className="mt-10">
-            <HorariosGrid schedules={schedules} />
+            <HorariosGrid initialSchedules={schedules} />
           </div>
         </div>
       </Section>
